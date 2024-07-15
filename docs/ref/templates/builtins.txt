@@ -959,15 +959,16 @@ output (as a string) inside a variable. This is useful if you want to use
 
 .. versionadded:: 5.1
 
-Outputs the query string from a given :class:`~django.http.QueryDict` instance,
-if provided, or ``request.GET`` if not and the
+Outputs the query string from a given :class:`~django.http.QueryDict` or
+:class:`dict` instance, if provided, or ``request.GET`` if not and the
 ``django.template.context_processors.request`` context processor is enabled.
-If the ``QueryDict`` is empty, then the output will be an empty string.
-Otherwise, the query string will be returned with a leading ``"?"``.
+If the ``dict``s are empty and there are no keyword arguments, then the output
+will be an empty string. Otherwise, the query string will be returned
+with a leading ``"?"``.
 
 If not using the ``django.template.context_processors.request`` context
 processor, you must pass either the ``request`` into the template context or a
-``QueryDict`` instance into this tag.
+``QueryDict``/``dict`` instance into this tag.
 
 The following example outputs the current query string verbatim. So if the
 query string is ``?color=green&size=M``, the output would be
@@ -977,12 +978,12 @@ query string is ``?color=green&size=M``, the output would be
 
     {% querystring %}
 
-You can also pass in a custom ``QueryDict`` that will be used instead of
-``request.GET``:
+You can also pass in a custom ``QueryDict`` or ``dict`` that will be used
+instead of ``request.GET``:
 
 .. code-block:: html+django
 
-    {% querystring my_query_dict %}
+    {% querystring my_dict %}
 
 Each keyword argument will be added to the query string, replacing any existing
 value for that key. With the query string ``?color=blue``, the following would
@@ -991,6 +992,15 @@ result in ``?color=red&size=S``:
 .. code-block:: html+django
 
     {% querystring color="red" size="S" %}
+
+A mix of multiple ``dict`` arguments and keyword arguments may also be used.
+With the query string ``?color=blue``, ``my_query_dict``: ``fit=slim`` and
+``my_dict``: ``{"size": "M"}``, the following would result in
+``?color=red&fit=slim&size=S``:
+
+.. code-block:: html+django
+
+    {% querystring my_query_dict my_dict color="red" size="S" %}
 
 It is possible to remove parameters by passing ``None`` as a value. With the
 query string ``?color=blue&size=M``, the following would result in ``?size=M``:
